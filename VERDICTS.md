@@ -28,6 +28,116 @@ after this commit; where the runs disagree, section 2 says so.
 - All rows should pass: `AbortSignal.timeout(5000)` on line 16, `Promise.all` on line 54 waits for parallel stock requests, `textContent` on lines 33–34, `catch` clears the list and shows Retry.
 - Unsure: with `"strict": false` in `jsconfig.json`, I do not expect `firstElementChild` (possibly null) to be underlined in row 8 for A, B or C.
 
-## 2. Results
+## 2. Results on the original versions
 
-*Not run yet — filled in after the predictions commit.*
+Run on 2026-10-29, 22:26–22:28, against the untouched `server.mjs` on
+`http://localhost:5050` (Node v24.16.0). Every number below is in
+[`evidence/run-original.txt`](evidence/run-original.txt), which also says how
+the rows were run: a script drives the real page in Chromium and reads what it
+shows; row 8 is `tsc --project jsconfig.json` with `// @ts-check` added to one
+file at a time. Screenshots of the failing rows are real Chrome windows with
+DevTools on the Network panel, or a real PowerShell window (see `AI-LOG.md`
+for how they were taken).
+
+Note on row 7: in Chrome every page also shows a red
+`GET /favicon.ico 404 (Not Found)` line. That is the browser asking for a tab
+icon the starter server does not have — the browser reporting the network,
+like the `GET … 500` line the README mentions — not the version's code.
+
+### Version A — verdict: **fix** (decided by row 2)
+
+| Row | Result | What I saw |
+|---|---|---|
+| 1 | PASS | `normal`: 8 cards in API order (`tshirt` … `scarf`), prices `180.000 đ`, `420.000 đ` …, `#status` empty |
+| 2 | **FAIL** | `normal`, at 1.5 s: **`Stock value: 0 đ`**, expected `12.360.000 đ`. Network shows all 8 `/api/stock/…` requests answered `200` (initiator `a.js:20`); the last one ended at 930 ms, after the total had already been written |
+| 3 | PASS | last card reads `Scarf <i>limited</i>`, 0 `<i>` elements inside it |
+| 4 | PASS | `slow`: `Loading products…` at 1 s, 8 cards at 3035 ms, status cleared (stock still `0 đ` — the row 2 bug) |
+| 5 | PASS | `error`: `Could not load products.`, Retry shown, 0 cards; `normal` + Retry: 8 cards, message and button gone |
+| 6 | PASS | `hang`: `Could not load products.` + Retry at 5099 ms; server: `no answer: the browser gave up after 5009 ms` |
+| 7 | PASS | no `Uncaught …`, no unhandled rejection, no `console.error`; only the browser's own `500` (and favicon `404`) lines |
+| 8 | PASS | `// @ts-check` on `a.js`: `tsc` exit 0, nothing reported |
+| empty | PASS | `No products yet.`, 0 cards, `0 đ` |
+| parallel | PASS | 8 stock requests started at 50–52 ms (spread 2 ms), no staircase |
+
+- **Line(s) responsible:** `public/versions/a.js` lines 51–56:
+  ```js
+  let total = 0;
+  products.forEach(async (p) => {
+    const stock = await getStock(p.id);
+    total += p.price * stock;
+  });
+  stockValue.textContent = formatVnd(total);
+  ```
+  `forEach` ignores the promises its async callback returns, so line 56 runs
+  straight away with `total` still 0, and nothing writes the total again.
+- **Evidence:** [`evidence/a-row2.png`](evidence/a-row2.png).
+- **The one sentence for the assistant:** *"Row 2 fails: in mode normal the page shows Stock value: 0 đ instead of 12.360.000 đ because products.forEach(async …) on a.js lines 52–55 is not awaited, so line 56 writes the total while it is still 0 — wait for every stock response before writing the total, keep the eight /api/stock/… requests going out in parallel (no await inside a loop), and change nothing else."*
+
+### Version B — verdict: **fix** (decided by row 6, also row 8)
+
+| Row | Result | What I saw |
+|---|---|---|
+| 1 | PASS | `normal`: 8 cards in API order, prices as A, `#status` empty |
+| 2 | PASS | `normal`, at 1.5 s: `12.360.000 đ` |
+| 3 | PASS | last card reads `Scarf <i>limited</i>`, 0 `<i>` elements |
+| 4 | PASS | `slow`: `Loading products…` at 1 s, 8 cards at 3050 ms, status cleared, `12.360.000 đ` |
+| 5 | PASS | `error`: message + Retry, 0 cards; `normal` + Retry: 8 cards, message and button gone, `12.360.000 đ` |
+| 6 | **FAIL** | `hang`: still **`Loading products…`, no Retry** at 5.5 s, 7 s, 15 s and 25 s; Network shows `products` **(pending)** (initiator `b.js:16`). Only at **30.01 s**, when the server answered `504` (`-> 504 30009 ms` in its log), did the page show `Could not load products.` |
+| 7 | PASS | no `Uncaught …`, nothing from the page; the browser's own `500` line and, at 30 s in row 6, its own `504 (Gateway Timeout)` line |
+| 8 | **FAIL** | `// @ts-check` on `b.js`: `public/versions/b.js:17:51 - error TS2353: Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.` (line 17 because `@ts-check` became line 1; it is line 16 of the file) |
+| empty | PASS | `No products yet.`, 0 cards, `0 đ` |
+| parallel | PASS | 8 stock requests started at 58–59 ms (spread 1 ms) |
+
+- **Line(s) responsible:** `public/versions/b.js` line 16:
+  ```js
+  const response = await fetch('/api/products', { timeout: 5000 });
+  ```
+  `fetch` has no `timeout` option; the browser ignores the unknown key, so
+  nothing ever aborts the request, and TypeScript rejects the key against
+  `RequestInit`.
+- **Evidence:** [`evidence/b-row6.png`](evidence/b-row6.png) (at 8 s:
+  `Loading products…`, `products` pending). Supporting, from a second run:
+  [`evidence/b-row6-at32s.png`](evidence/b-row6-at32s.png) (at 32 s:
+  `products` `504` after `30.01 s`, only then the message and Retry).
+  [`evidence/b-row8.png`](evidence/b-row8.png) (PowerShell: the first 17
+  lines of `b.js` with `// @ts-check`, then `tsc` with TS2353, exit code 2).
+- **The one sentence for the assistant:** *"Rows 6 and 8 fail: in mode hang the page still says Loading products… after 7 s, Network shows /api/products pending until the 504 at 30 s, and // @ts-check underlines timeout with TS2353, because fetch has no timeout option (b.js line 16) — make the products request give up after 5 seconds so the catch shows Could not load products. and Retry, keep the stock requests parallel, and change nothing else."*
+
+### Version C — verdict: **keep** (every row passes)
+
+| Row | Result | What I saw |
+|---|---|---|
+| 1 | PASS | `normal`: 8 cards in API order, prices as A, `#status` empty |
+| 2 | PASS | `normal`, at 1.5 s: `12.360.000 đ` |
+| 3 | PASS | last card reads `Scarf <i>limited</i>`, 0 `<i>` elements |
+| 4 | PASS | `slow`: `Loading products…` at 1 s, 8 cards at 3069 ms, status cleared, `12.360.000 đ` |
+| 5 | PASS | `error`: message + Retry, 0 cards; `normal` + Retry: 8 cards, message and button gone |
+| 6 | PASS | `hang`: `Could not load products.` + Retry at 5085 ms; server: `the browser gave up after 5002 ms` |
+| 7 | PASS | no `Uncaught …`, nothing from the page; only the browser's own `500` line |
+| 8 | PASS | `// @ts-check` on `c.js`: `tsc` exit 0 |
+| empty | PASS | `No products yet.`, 0 cards, `0 đ` |
+| parallel | PASS | 8 stock requests started at 42–43 ms (spread 1 ms) |
+
+- **Line(s) responsible:** none.
+- **Evidence:** no failing row, so no screenshot; numbers in `evidence/run-original.txt`.
+- **The one sentence for the assistant:** none needed — C is kept as it is. If asked, I would say: *"Leave c.js unchanged: it passes rows 1–8, empty and the parallel check."*
+
+### Predictions against the table
+
+- **A:** right — row 2 failed with `0 đ`, everything else passed. The doubt
+  about row 7 did not show up: every stock request succeeded, so no detached
+  promise rejected. (Whether it would is checked in `ASSISTANT-REVIEW.md`.)
+- **B:** right on row 6. Row 8 was marked "probably"; the run confirmed it.
+  One thing the prediction did not say: B does recover after 30 s, because
+  the server's `504` lands in `catch` — the row still fails, since it asks
+  for the message after about 5 s.
+- **C:** right — keep. The doubt about `firstElementChild` and row 8 was
+  unfounded with `"strict": false`: `tsc` reported nothing for A or C.
+
+## 3. Summary
+
+| Version | Predicted | Failing rows | Verdict | Evidence |
+|---|---|---|---|---|
+| A | fix | 2 | **fix** | `evidence/a-row2.png` |
+| B | fix | 6, 8 | **fix** | `evidence/b-row6.png` (+ `b-row6-at32s.png`), `evidence/b-row8.png` |
+| C | keep | — | **keep** | — |

@@ -42,4 +42,35 @@ starter.
 - **Changed:** —
 - **Rejected:** —
 - **By hand:** read the draft and approved it before anything was run.
-- **Commit:** predictions (this entry).
+- **Commit:** `63951a7` predictions.
+
+---
+
+## 2026-10-29 22:26–23:01 — Running the table on the originals, screenshots
+- **Tool:** Claude Code, Claude Opus 5.5.
+- **Asked for:** start `node server.mjs` on 5050 in a terminal I could
+  watch, run rows 1–8, empty and the parallel check on the three original
+  files, log the numbers, then take the screenshots of the failing rows.
+- **Kept:** the run (`evidence/run-original.txt`): A fails row 2, B fails
+  rows 6 and 8, C passes everything — as predicted. Its harness drives the
+  real page in an iframe and switches modes through `POST /__mode`; it lives
+  in `tools/` outside the repo so nothing but `public/versions/*.js` is ever
+  touched.
+- **Changed:** I first opened Chrome to take the screenshots myself and got a
+  red `favicon.ico 404` in the Console; Claude explained it is the browser's
+  own request, not the page (now noted under row 7), and that `a-row2` needs
+  the Network panel, not Console. I then asked it to take the screenshots
+  itself. It wrote a script that opens a separate Chrome (throwaway profile)
+  with DevTools docked on Network and photographs that window, and a second
+  one that adds `// @ts-check` to `b.js`, runs `tsc` in a real PowerShell
+  window, photographs it and restores `b.js` with `git checkout`. Its first
+  captures were cut off (125 % display scaling) and showed `đ` garbled; both
+  fixed and retaken. When I asked whether the screenshots would pass a strict
+  grader, it judged `b-row6.png` alone shows no elapsed time and added
+  `b-row6-at32s.png` (`products` 504 after 30.01 s).
+- **Rejected:** —
+- **By hand:** decided to let the assistant take the screenshots, asked for
+  each image to be checked against the rubric, chose to keep the extra 32 s
+  screenshot, confirmed the verdicts A fix, B fix, C keep and the two
+  sentences.
+- **Commit:** results (this entry).

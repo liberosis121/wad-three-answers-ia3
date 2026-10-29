@@ -1,0 +1,91 @@
+IA#3 — Done means on the ORIGINAL versions (starter commit 3676f2f)
+Run: 2026-10-29 22:26–22:28 (UTC+7). Server: `node server.mjs` on http://localhost:5050,
+Node v24.16.0, untouched starter. Browser: Chromium (Claude desktop app's built-in browser).
+
+HOW THIS WAS RUN (automated; the screenshots in evidence/*.png are the manual check)
+- Rows 1–7 + empty + parallel: a script (tools/harness.js, kept outside the submission)
+  loads /?v=<letter> in an iframe on the real page, switches the mode through POST /__mode
+  exactly as the Test conditions buttons do, and reads #status, #catalogue, #stock-value
+  and #retry. Stock request start times come from the page's Performance API
+  (resource entries for /api/stock/…), in ms since the page started.
+  Row 7: listens for `error` / `unhandledrejection` and wraps console.error in the page;
+  the browser's own console was read afterwards as well.
+- Row 8: `// @ts-check` added as line 1 of ONE version file at a time, in a scratch copy
+  of public/ + jsconfig.json, then `tsc --project jsconfig.json --noEmit` (TypeScript 5.6.3).
+  The copy is thrown away; the real files were never edited.
+Server log times below are UTC (the server prints toISOString), i.e. 15:26 = 22:26 local.
+
+=====================================================================================
+VERSION A
+=====================================================================================
+row 1   PASS  normal: 8 cards, ids tshirt,hoodie,somi,cap,tote,socks,jacket,scarf (API order),
+              prices 180.000 đ | 420.000 đ | 350.000 đ | 95.000 đ | 120.000 đ | 75.000 đ |
+              890.000 đ | 160.000 đ; #status "".
+row 2   FAIL  normal, read at 1.5 s: #stock-value "0 đ" (expected 12.360.000 đ).
+              The last stock response ended at 930 ms, so the total was written before
+              the answers and never updated.
+row 3   PASS  last card .name = "Scarf <i>limited</i>", 0 <i> elements inside it.
+row 4   PASS  slow: #status "Loading products…" at 1 s; 8 cards at 3035 ms; #status "" after.
+              (#stock-value "0 đ" here too — the row 2 bug, not a row 4 failure.)
+row 5   PASS  error: "Could not load products.", Retry visible, 0 cards.
+              normal + Retry: 8 cards, #status "", Retry hidden. (stock "0 đ" again — row 2.)
+row 6   PASS  hang: "Loading products…" at 1 s and 3 s; "Could not load products." + Retry at
+              5099 ms. Server: "GET /api/products [mode=hang] -> no answer: the browser gave
+              up after 5009 ms" (15:26:52).
+row 7   PASS  no page error, no unhandled rejection, no console.error from the page.
+              Browser console: only "Failed to load resource: … 500 (Internal Server Error)"
+              from the error row (the browser reporting the network).
+row 8   PASS  @ts-check on a.js: tsc exit 0, no error.
+empty   PASS  "No products yet.", 0 cards, #stock-value "0 đ".
+parallel PASS 8 /api/stock/ requests, starts: tshirt@50 hoodie@50 somi@50 cap@51 tote@51
+              socks@51 jacket@51 scarf@52 → all within 2 ms (no staircase).
+
+=====================================================================================
+VERSION B
+=====================================================================================
+row 1   PASS  normal: 8 cards in API order, same prices as A, #status "".
+row 2   PASS  normal, read at 1.5 s: #stock-value "12.360.000 đ".
+row 3   PASS  last card .name = "Scarf <i>limited</i>", 0 <i> elements.
+row 4   PASS  slow: "Loading products…" at 1 s; 8 cards at 3050 ms; #status "" after;
+              stock 12.360.000 đ.
+row 5   PASS  error: "Could not load products.", Retry visible, 0 cards.
+              normal + Retry: 8 cards, #status "", Retry hidden, stock 12.360.000 đ.
+row 6   FAIL  hang: #status "Loading products…" and Retry hidden at 1 s, 3 s, 5.5 s, 7 s,
+              15 s and 25 s. "Could not load products." + Retry only at 30042 ms, when the
+              server finally answered: "GET /api/products [mode=hang] -> 504 30009 ms"
+              (15:27:55). Nothing gave up after 5 s.
+row 7   PASS  no page error, no unhandled rejection, no console.error from the page.
+              Browser console: "… 500 (Internal Server Error)" (error row) and, at 30 s in
+              the hang row, "… 504 (Gateway Timeout)" — both the browser's own network lines.
+row 8   FAIL  @ts-check on b.js:
+              public/versions/b.js(17,51): error TS2353: Object literal may only specify known
+              properties, and 'timeout' does not exist in type 'RequestInit'.
+              (line 17 because @ts-check was inserted as line 1; it is line 16 of b.js)
+empty   PASS  "No products yet.", 0 cards, #stock-value "0 đ".
+parallel PASS 8 /api/stock/ requests, starts: tshirt@58 hoodie@58 somi@58 tote@59 cap@59
+              socks@59 scarf@59 jacket@59 → within 1 ms.
+
+=====================================================================================
+VERSION C
+=====================================================================================
+row 1   PASS  normal: 8 cards in API order, same prices as A, #status "".
+row 2   PASS  normal, read at 1.5 s: #stock-value "12.360.000 đ".
+row 3   PASS  last card .name = "Scarf <i>limited</i>", 0 <i> elements.
+row 4   PASS  slow: "Loading products…" at 1 s; 8 cards at 3069 ms; #status "" after;
+              stock 12.360.000 đ.
+row 5   PASS  error: "Could not load products.", Retry visible, 0 cards.
+              normal + Retry: 8 cards, #status "", Retry hidden, stock 12.360.000 đ.
+row 6   PASS  hang: "Loading products…" at 1 s and 3 s; "Could not load products." + Retry at
+              5085 ms. Server: "no answer: the browser gave up after 5002 ms" (15:27:12).
+row 7   PASS  no page error, no unhandled rejection, no console.error from the page.
+              Browser console: only the browser's "… 500 (Internal Server Error)" line.
+row 8   PASS  @ts-check on c.js: tsc exit 0, no error.
+empty   PASS  "No products yet.", 0 cards, #stock-value "0 đ".
+parallel PASS 8 /api/stock/ requests, starts: tshirt@42 hoodie@42 somi@42 cap@42 tote@43
+              socks@43 jacket@43 scarf@43 → within 1 ms.
+
+=====================================================================================
+SUMMARY
+=====================================================================================
+FAIL: A row 2 · B row 6 · B row 8. Every other row and the parallel check pass.
+Screenshots needed: evidence/a-row2.png, evidence/b-row6.png, evidence/b-row8.png.
