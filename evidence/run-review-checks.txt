@@ -1,0 +1,29 @@
+IA#3 — runs that check the assistant's review claims no Done means row covers
+Run: 2026-10-29 ~23:10 (UTC+7), original versions (commit 3676f2f), server.mjs in mode normal,
+Chromium (Claude desktop app's built-in browser).
+
+WHY: the review claims things about a FAILED STOCK REQUEST. No row makes a stock request
+fail — server.mjs only answers 404 for an unknown id, and every id in its catalogue exists.
+
+HOW: same iframe harness as run-original.txt. Before the version runs, the page's own
+window.fetch is wrapped so that GET /api/stock/cap answers 404 {"error":"Unknown product id: cap"}
+(what server.mjs sends for an unknown id); every other request goes to the real server.
+Nothing in the repository is changed. State read 1.5 s after load. The script is kept
+outside the submission (tools/).
+
+version  #status                     cards  #stock-value  Retry    page errors
+-------  --------------------------  -----  ------------  -------  -----------------------------------------------
+A        ""                          8      0 đ           hidden   unhandledrejection: Error: GET /api/stock/cap failed: HTTP 404
+B        "Could not load products."  8      —             shown    none
+C        "Could not load products."  0      —             shown    none
+
+Browser console for A (copied):
+  Uncaught (in promise) Error: GET /api/stock/cap failed: HTTP 404
+      at getStock (http://localhost:5050/versions/a.js:21:22)
+      at async http://localhost:5050/versions/a.js:53:21
+
+Reading:
+- A: the detached forEach callbacks reject with nobody waiting → red "Uncaught (in promise)"
+  in the Console. Under the real server this never happens (row 7 passes), but the claim is real.
+- B: the cards stay on the page while the status says "Could not load products." and Retry shows.
+- C: the cards are removed and "Could not load products." + Retry show.

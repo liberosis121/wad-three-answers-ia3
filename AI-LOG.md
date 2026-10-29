@@ -73,4 +73,29 @@ starter.
   each image to be checked against the rubric, chose to keep the extra 32 s
   screenshot, confirmed the verdicts A fix, B fix, C keep and the two
   sentences.
-- **Commit:** results (this entry).
+- **Commit:** `9876e10` results.
+
+---
+
+## 2026-10-29 23:04–23:07 — The assistant's review, checked
+- **Tool:** Claude Code; the review itself by a fresh `general-purpose`
+  subagent (Claude Opus 5.5, no history), checking by the main session.
+- **Asked for:** a review of the three ORIGINAL files against `brief.md`,
+  with no verdict given. The subagent could read only a temp folder with
+  those four files; prompt and answer are in `ASSISTANT-REVIEW.md`, unedited.
+- **Kept:** its findings that match rows: A row 2 (`forEach(async …)`),
+  B row 6 (`{ timeout: 5000 }`), C keep.
+- **Changed:** its claim that B hangs "forever" — row 6's run shows the
+  server's `504` at 30.01 s ends the wait (`b-row6-at32s.png`); the row
+  fails anyway.
+- **Rejected:** — no invented bug. Three claims about a failing stock
+  request (A unhandled rejection, B cards + error message, C cards removed)
+  are not tested by any row, so I had them checked by a fault run instead
+  of by reading: `/api/stock/cap` forced to `404` in the page's `fetch`
+  (`evidence/run-review-checks.txt`). All three are real; none changes a
+  verdict.
+- **What it got wrong:** it missed B row 8 (TS2353), which `evidence/b-row8.png`
+  shows.
+- **By hand:** asked for the review to be isolated from my verdicts and for
+  every claim to be checked by a row or a run.
+- **Commit:** assistant review (this entry).
