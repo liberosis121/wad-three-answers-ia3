@@ -153,4 +153,26 @@ starter.
   + Retry, no page error) and cited that run.
 - **Rejected:** —
 - **By hand:** asked for the full rerun rather than the two fixed rows only.
-- **Commit:** rerun after fixes (this entry).
+- **Commit:** `7a87a98` rerun after fixes.
+
+---
+
+## 2026-10-30 22:41 — CSR vs SSR
+- **Tool:** Claude Code, Claude Opus 5.5.
+- **Asked for:** the four screenshots (requests on `/ssr` and `/?v=c`, both
+  pages with JavaScript off), the real source of both pages, and answers to
+  the README's five questions from what those show.
+- **Kept:** the counts read off the Network bar — `/ssr` 3 requests (2
+  without `favicon.ico`), `/?v=c` 15 (14) — and the JavaScript-off result:
+  `/ssr` complete, `/?v=c` an empty shell with `Server mode: unknown` and
+  only 3 requests, `panel.js` never fetched.
+- **Changed:** I asked it to take these screenshots too. It extended the
+  capture script with a `-NoJs` switch (Chrome site setting "JavaScript:
+  Don't allow" in the throwaway profile) rather than pressing keys in
+  DevTools. For question 2 it did not stop at the definition: it read the
+  scarf's `<h2>` on `/?v=c` and found `innerHTML` = `Scarf &lt;i&gt;limited&lt;/i&gt;`,
+  a single text node — the same text `/ssr` sends.
+- **Rejected:** —
+- **By hand:** asked for every answer to point at a screenshot, the source
+  or a number, and read the five answers.
+- **Commit:** CSR vs SSR (this entry).
