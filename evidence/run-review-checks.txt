@@ -1,5 +1,7 @@
 IA#3 — runs that check the assistant's review claims no Done means row covers
-Run: 2026-10-29 ~23:10 (UTC+7), original versions (commit 3676f2f), server.mjs in mode normal,
+Run: 2026-10-29 ~23:06 (UTC+7), original versions (commit 3676f2f), server.mjs in mode normal,
+[corrected 2026-10-30: this line first said "~23:10", a guess written before the commit at 23:07:32;
+ the run happened just before that commit]
 Chromium (Claude desktop app's built-in browser).
 
 WHY: the review claims things about a FAILED STOCK REQUEST. No row makes a stock request
@@ -27,3 +29,34 @@ Reading:
   in the Console. Under the real server this never happens (row 7 passes), but the claim is real.
 - B: the cards stay on the page while the status says "Could not load products." and Retry shows.
 - C: the cards are removed and "Could not load products." + Retry show.
+
+-------------------------------------------------------------------------------------------
+SECOND SET — 2026-10-30 ~22:50, added after an independent grading pointed out that claims
+3, 10, 14 and part of 8 had been judged by reading only.
+
+The repository's a.js and b.js are the FIXED files by now, so the ORIGINAL source was taken
+with `git show 3676f2f:public/versions/<v>.js` and loaded into a page opened as /?orig=<v>
+(no ?v=, so panel.js loads no version) as a blob: module. Nothing in the repository was
+edited. Sanity check: original A loaded this way shows "0 đ" with the real server, as in row 2.
+C is unchanged on disk and was loaded normally as /?v=c.
+
+check                                              at       #status               cards  #stock-value  Retry
+-------------------------------------------------  -------  --------------------  -----  ------------  ------
+A original, /api/stock/cap never answers           2 s      ""                    8      0 đ           hidden
+                                                   8 s      ""                    8      0 đ           hidden
+B original, /api/stock/cap never answers           2 s      ""                    8      —             hidden
+                                                   8 s      ""                    8      —             hidden
+C (unchanged), /api/stock/cap never answers        2 s      ""                    8      —             hidden
+                                                   8 s      ""                    8      —             hidden
+B original, /api/products answers after 7 s        5.5 s    "Loading products…"   0      —             hidden
+                                                   8.5 s    ""                    8      12.360.000 đ  hidden
+No page errors in any of these runs.
+
+Reading:
+- Claims 3 / 10 / 14 (no timeout on stock requests): real. A shows "0 đ" whatever happens (it
+  never waited); B and C leave "—" with no message for as long as the stock request hangs.
+  No Done means row hangs a stock request, so no row fails because of it.
+- Claim 8, "a slow API (> 5 s) is waited out": real. B is still "Loading products…" at 5.5 s
+  and shows the cards at 8.5 s — the brief wants the error and Retry after 5 s.
+- Claim 8, "`loading` stays true": an internal variable with nothing on screen to observe while
+  the request is pending (Retry is hidden anyway) — not checked by a run.

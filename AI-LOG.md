@@ -116,7 +116,8 @@ starter.
 - **Rejected:** —
 - **By hand:** read the diff (only `a.js`, 2 + / 5 −) and approved the commit.
 - **Commit:** `3385d84` fix A (the commit holds only `a.js`; this entry
-  rides with the rerun commit below).
+  rides with the rerun commit below). Written at 22:27, six minutes after
+  the fix, because a fix commit may touch nothing but its version file.
 
 ---
 
@@ -175,4 +176,41 @@ starter.
 - **Rejected:** —
 - **By hand:** asked for every answer to point at a screenshot, the source
   or a number, and read the five answers.
-- **Commit:** CSR vs SSR (this entry).
+- **Commit:** `dcb3bc6` CSR vs SSR.
+
+---
+
+## 2026-10-30 22:45–23:00 — Independent grading, and what it changed
+- **Tool:** Claude Code; the grading by a fresh `general-purpose` subagent
+  (Claude Opus 5.5), told to be strict, to read the rubric PDF and the repo
+  and to change nothing.
+- **Asked for:** a mark per rubric criterion with evidence, and every risk an
+  AI grader could see, before writing `SELF_ASSESSMENT_REPORT.md`.
+- **Kept:** its mark of 90/100 and its list of risks. Acted on:
+  - VERDICTS: said plainly that Claude ran the rows and took the
+    screenshots, and that the prediction was drafted after the first
+    attempt had been reviewed (section 1 itself is unchanged since
+    `63951a7`); explained why `b-row6-at32s.png` is what proves row 6.
+  - ASSISTANT-REVIEW: claims 3, 10 and 14 and two parts of claim 8 had been
+    judged by reading. They now have runs (second set in
+    `evidence/run-review-checks.txt`, the ORIGINAL source loaded from
+    `git show 3676f2f` so the fixed files were not touched); "`loading`
+    stays true" is marked as not checked by a run.
+  - `run-review-checks.txt` said "~23:10" for a run committed at 23:07 —
+    a guessed time, corrected with a note. `run-original.txt` said the real
+    files were never edited; added that the row 8 screenshot did edit
+    `b.js` briefly.
+  - CSR-SSR question 1: added real View source screenshots
+    (`csr-source-c.png`, `csr-source-ssr.png`).
+  - `tools/`: copies of every script behind `evidence/`.
+- **Changed:** the assistant's attempts went wrong three times and were
+  caught by looking at the images: the VS Code screenshot for row 8 opened
+  on a sign-in screen, and its first try loaded the FIXED `b.js` (row 8
+  must be shown on the original) — both discarded, `b.js` restored byte for
+  byte; view-source pages came out blank in several captures until the page
+  was given longer and scrolled.
+- **Rejected:** retaking `b-row6.png` — it would mean putting the original
+  `b.js` back into the working tree after the fix; explained instead.
+- **By hand:** asked for the independent grading and for every reference to
+  be checked; decided which risks to fix.
+- **Commit:** fixes after the grading (this entry).

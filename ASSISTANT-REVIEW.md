@@ -93,26 +93,30 @@ When the server answers `500`, Chrome itself logs a red "GET /api/products 500" 
 ## 3. Each claim, checked
 
 "Row" = a row of *Done means* in `VERDICTS.md` / `evidence/run-original.txt`.
-"Fault run" = `evidence/run-review-checks.txt`: the same page with
+"Fault run" = `evidence/run-review-checks.txt`, first set: the same page with
 `GET /api/stock/cap` forced to answer `404`, because no row makes a stock
-request fail (every id in `server.mjs` exists).
+request fail (every id in `server.mjs` exists). "Hang run" = its second set
+(2026-10-30): the ORIGINAL source loaded from `git show 3676f2f`, with
+`/api/stock/cap` never answering, or `/api/products` answering after 7 s —
+added after an independent grading noted that claims 3, 8, 10 and 14 had been
+judged by reading only.
 
 | # | Version | The assistant's claim | Checked by | Result |
 |---|---|---|---|---|
 | 1 | A | Lines 51–56: `forEach(async …)` is not awaited, `#stock-value` always shows `0 đ` | Row 2 | **Confirmed.** `0 đ` at 1.5 s while all 8 stock requests answered `200` (last at 930 ms); `evidence/a-row2.png` |
 | 2 | A | Lines 52–55: a failed stock request escapes `try/catch` → red `Uncaught (in promise)` in the Console, page stays `0 đ`, no message | Row 7 + fault run | **Real, but no row shows it.** Row 7 passes with the real server (no stock request fails). Fault run: Console `Uncaught (in promise) Error: GET /api/stock/cap failed: HTTP 404 at getStock (a.js:21)`, page `0 đ`, no message, Retry hidden — exactly as claimed |
-| 3 | A | Line 20: no timeout on stock requests (minor) | — | **Not a failure under any row.** The brief asks for a 5 s timeout on `/api/products` only; stock answers in 100–600 ms |
+| 3 | A | Line 20: no timeout on stock requests (minor); nothing visible | Hang run | **Real, no row fails.** `/api/stock/cap` never answering: still `0 đ`, no message at 2 s and 8 s — A never waited for stock anyway. The brief asks for a timeout on `/api/products` only |
 | 4 | A | The 5 s timeout works (line 14) | Row 6 | **Confirmed.** Gave up at 5099 ms; server: `the browser gave up after 5009 ms` |
 | 5 | A | Non-2xx → message + Retry; Retry hides it and starts again | Row 5 | **Confirmed.** |
 | 6 | A | `textContent`, `data-id`, price format correct | Rows 1, 3 | **Confirmed.** API order, `180.000 đ`, `Scarf <i>limited</i>` with 0 `<i>` |
 | 7 | A | Empty list → `No products yet.`, `0 đ` "correct only by accident" | Empty row | **Confirmed.** |
-| 8 | B | Line 16: `{ timeout: 5000 }` does nothing — a hanging API leaves `Loading products…` and no Retry **forever**; a slow API (> 5 s) is waited out | Row 6 (+ row 8) | **Confirmed, one overstatement.** Still `Loading products…` at 5.5, 7, 15 and 25 s; `products` pending (`evidence/b-row6.png`). Not *forever* with this server: its `504` at 30.01 s lands in `catch` and the message + Retry appear (`evidence/b-row6-at32s.png`). The row fails all the same — it asks for the message after about 5 s |
+| 8 | B | Line 16: `{ timeout: 5000 }` does nothing — a hanging API leaves `Loading products…` and no Retry **forever**; a slow API (> 5 s) is waited out | Row 6 (+ row 8) | **Confirmed, one overstatement.** Still `Loading products…` at 5.5, 7, 15 and 25 s; `products` pending (`evidence/b-row6.png`). Not *forever* with this server: its `504` at 30.01 s lands in `catch` and the message + Retry appear (`evidence/b-row6-at32s.png`). The row fails all the same — it asks for the message after about 5 s. "A slow API (> 5 s) is waited out": **real** — hang run with `/api/products` answering after 7 s: `Loading products…` at 5.5 s, cards at 8.5 s. "`loading` stays `true`": internal state with nothing to see on screen — **not checked by a run** |
 | 9 | B | Lines 51, 54–56: a failed stock request leaves the cards on screen while the status says `Could not load products.` and Retry shows; stock stays `—` | Fault run | **Real, but no row shows it.** Fault run: 8 cards, `Could not load products.`, Retry shown, `—`. The brief does not say what a stock failure should look like |
-| 10 | B | Line 22: no timeout on stock requests (minor) | — | **Not a failure under any row** (as claim 3) |
+| 10 | B | Line 22: no timeout on stock requests; `#stock-value` stays `—` with no message (minor) | Hang run | **Real, no row fails.** `/api/stock/cap` never answering: 8 cards, `—`, no message at 2 s and 8 s |
 | 11 | B | Cards, `textContent`, order, empty list, parallel stock and the total are correct; list cleared at line 42 | Rows 1–5, empty, parallel check | **Confirmed.** `12.360.000 đ`, stock requests started within 1 ms |
 | 12 | C | No bug against the brief; timeout, errors, Retry, cards, empty list, parallel stock all correct | Rows 1–8, empty, parallel check | **Confirmed.** Every row passes (`evidence/run-original.txt`) |
 | 13 | C | Lines 54, 58–60: a failed stock request removes the cards and shows `Could not load products.` (minor) | Fault run | **Real, but no row shows it.** Fault run: 0 cards, `Could not load products.`, Retry shown. Not a breach of the brief, as the assistant says |
-| 14 | C | Line 22: no timeout on stock requests (minor) | — | **Not a failure under any row** |
+| 14 | C | Line 22: no timeout on stock requests; `—` forever (minor) | Hang run | **Real, no row fails.** Same as claim 10: 8 cards, `—`, no message at 2 s and 8 s |
 | 15 | all | Chrome's own red `GET … 500` line is not the code's fault | Row 7 | **Confirmed.** It is the browser reporting the network; the same is true of the `favicon.ico 404` line it did not mention |
 
 ## 4. Failing rows the assistant missed
@@ -128,7 +132,7 @@ Every other failing row (A row 2, B row 6) it found, with the right lines.
 - **Missed:** B row 8, above.
 - **Overstated:** B's hang lasts "forever". With the starter's server the
   page recovers after 30 s, when the `504` arrives. The row still fails.
-- **Invented:** nothing. Its three stock-failure claims (2, 9, 13) are real
-  behaviour, shown by the fault run, but no row of *Done means* tests a
+- **Invented:** nothing. Its stock-failure and stock-timeout claims (2, 3, 9,
+  10, 13, 14) are real behaviour, shown by the fault and hang runs, but no row of *Done means* tests a
   failing stock request, so none of them changes a verdict.
 - Its verdicts — A fix, B fix, C keep — match mine.

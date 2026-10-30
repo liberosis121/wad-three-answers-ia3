@@ -9,13 +9,17 @@ windows with DevTools on the Network panel, *Disable cache* ticked:
 [`csr-requests-ssr.png`](evidence/csr-requests-ssr.png),
 [`csr-requests-c.png`](evidence/csr-requests-c.png),
 [`csr-nojs-ssr.png`](evidence/csr-nojs-ssr.png),
-[`csr-nojs-c.png`](evidence/csr-nojs-c.png). The page source below is what the
-server sends for each URL, the same text View page source (`Ctrl+U`) shows.
+[`csr-nojs-c.png`](evidence/csr-nojs-c.png). View page source (`Ctrl+U`, the
+`view-source:` page) of each URL is in
+[`csr-source-c.png`](evidence/csr-source-c.png) (scrolled to lines 31–58) and
+[`csr-source-ssr.png`](evidence/csr-source-ssr.png) (lines 1–26); the excerpts
+below are copied from the same responses.
 
 ## 1. Where are the product names in each? Where is the stock value?
 
-**`/?v=c` — not in the source.** The list arrives empty and the stock value is
-a dash:
+**`/?v=c` — not in the source.** View source shows the list empty at line 44
+and the stock value as a dash at line 39 (`csr-source-c.png`); its Network
+panel shows only the document and `favicon.ico` — View source runs no script:
 
 ```html
 <p class="stock-total">Stock value: <output id="stock-value">—</output></p>
@@ -37,8 +41,9 @@ No product name, price or `12.360.000 đ` appears anywhere in it. The only
 from `/api/products`; the total is added up in the browser from eight
 `/api/stock/:id` answers.
 
-**`/ssr` — in the source.** All eight cards and the total are already in the
-HTML:
+**`/ssr` — in the source.** View source shows `12.360.000 đ` at line 16 and
+the first cards from line 19 (`csr-source-ssr.png`); all eight cards and the
+total are already in the HTML:
 
 ```html
 <p class="stock-total">Stock value: <output id="stock-value">12.360.000 đ</output></p>
