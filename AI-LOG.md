@@ -98,4 +98,59 @@ starter.
   shows.
 - **By hand:** asked for the review to be isolated from my verdicts and for
   every claim to be checked by a row or a run.
-- **Commit:** assistant review (this entry).
+- **Commit:** `9612641` assistant review.
+
+---
+
+## 2026-10-30 22:21 — Fix A
+- **Tool:** Claude Code, Claude Opus 5.5.
+- **Asked for:** my one sentence for A from `VERDICTS.md` (row 2, `0 đ`,
+  `forEach(async …)` on lines 52–55; wait for every stock response, keep the
+  eight requests parallel, no `await` in a loop, change nothing else), then
+  the whole table, the parallel check and `tsc`, and the diff before any
+  commit.
+- **Kept:** the 5 lines replaced by 2: `await Promise.all(products.map(…))`
+  and a `reduce` for the total. Rerun: row 2 `12.360.000 đ`, every other row
+  still passes, 8 stock requests start within 1 ms, `tsc` exit 0.
+- **Changed:** — (it changed exactly what the sentence asked).
+- **Rejected:** —
+- **By hand:** read the diff (only `a.js`, 2 + / 5 −) and approved the commit.
+- **Commit:** `3385d84` fix A (the commit holds only `a.js`; this entry
+  rides with the rerun commit below).
+
+---
+
+## 2026-10-30 22:23 — Fix B
+- **Tool:** Claude Code, Claude Opus 5.5.
+- **Asked for:** my one sentence for B (rows 6 and 8, `{ timeout: 5000 }` on
+  line 16; give up after 5 s so `catch` shows the message and Retry, keep the
+  stock requests parallel, change nothing else), then the whole table and
+  `tsc`, and the diff.
+- **Kept:** the one-line change to `{ signal: AbortSignal.timeout(5000) }`.
+  Rerun: row 6 message + Retry at 5038 ms, `tsc` exit 0, stock parallel.
+- **Changed:** the first rerun showed `—` in the stock value in row 4, read
+  0.8 s after the cards. The assistant measured it 5 times on A, B and C:
+  the slowest stock answer lands 520–830 ms after the cards and the value is
+  always `12.360.000 đ`. A timing gap in the harness, not the fix; the final
+  rerun reads row 4 after 1.5 s.
+- **Rejected:** —
+- **By hand:** read the diff (only `b.js`, 1 line) and approved the commit.
+- **Commit:** `274e790` fix B (only `b.js`; entry rides with the rerun).
+
+---
+
+## 2026-10-30 22:27 — The whole table again, after the fixes
+- **Tool:** Claude Code, Claude Opus 5.5.
+- **Asked for:** rows 1–8, empty and the parallel check on the final three
+  files, saved to `evidence/run-after-fixes.txt`, and an "After fixes" table
+  in `VERDICTS.md`.
+- **Kept:** all three versions pass every row; stock requests start within
+  1–2 ms; only `a.js` and `b.js` differ from the starter.
+- **Changed:** the harness crashed once, reading the page before the iframe
+  had a `#status` (its own bug, fixed with a guard). The assistant first
+  wrote in `VERDICTS.md` that fix A also removes the `Uncaught (in promise)`
+  without having run it; it then ran the stock-404 fault on fixed A (message
+  + Retry, no page error) and cited that run.
+- **Rejected:** —
+- **By hand:** asked for the full rerun rather than the two fixed rows only.
+- **Commit:** rerun after fixes (this entry).

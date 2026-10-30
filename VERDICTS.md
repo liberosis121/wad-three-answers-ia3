@@ -141,3 +141,27 @@ like the `GET … 500` line the README mentions — not the version's code.
 | A | fix | 2 | **fix** | `evidence/a-row2.png` |
 | B | fix | 6, 8 | **fix** | `evidence/b-row6.png` (+ `b-row6-at32s.png`), `evidence/b-row8.png` |
 | C | keep | — | **keep** | — |
+
+## 4. After the fixes — the whole table again
+
+Fix A (`3385d84`) and fix B (`274e790`) each touch only their own file; C is
+unchanged. The whole table was run again on the final files on 2026-10-30
+around 22:25 ([`evidence/run-after-fixes.txt`](evidence/run-after-fixes.txt)).
+
+| Row | A (fixed) | B (fixed) | C (kept) |
+|---|---|---|---|
+| 1 | PASS — 8 cards, API order | PASS | PASS |
+| 2 | **PASS — `12.360.000 đ`** (was `0 đ`) | PASS — `12.360.000 đ` | PASS — `12.360.000 đ` |
+| 3 | PASS — `Scarf <i>limited</i>` | PASS | PASS |
+| 4 | PASS — cards at 3062 ms | PASS — cards at 3020 ms | PASS — cards at 3088 ms |
+| 5 | PASS | PASS | PASS |
+| 6 | PASS — message + Retry at 5092 ms | **PASS — message + Retry at 5042 ms** (was 30042 ms) | PASS — 5069 ms |
+| 7 | PASS — nothing from the page | PASS | PASS |
+| 8 | PASS — `tsc` exit 0 | **PASS — `tsc` exit 0** (was TS2353) | PASS — `tsc` exit 0 |
+| empty | PASS — `No products yet.`, `0 đ` | PASS | PASS |
+| parallel | PASS — 8 starts within 1 ms | PASS — within 2 ms | PASS — within 1 ms |
+
+Neither fix broke another row. Fix A also removes the `Uncaught (in promise)`
+that `ASSISTANT-REVIEW.md` produced by forcing a stock request to fail: the
+stock requests are now awaited inside `try`, so a failure reaches `catch`
+(re-run at the end of `evidence/run-after-fixes.txt`: message + Retry, no page error).

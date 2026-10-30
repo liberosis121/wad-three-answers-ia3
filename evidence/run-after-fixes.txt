@@ -1,0 +1,67 @@
+IA#3 — Done means on the FINAL versions (after fix A 3385d84 and fix B 274e790; C unchanged)
+Run: 2026-10-30 ~22:25 (UTC+7). Server: `node server.mjs` on http://localhost:5050, untouched starter,
+Node v24.16.0. Browser: Chromium (Claude desktop app's built-in browser).
+Method: same harness as run-original.txt (tools/harness.js, outside the submission), with one
+change: row 4 now reads the page 1.5 s after the cards appear instead of 0.8 s, because the slowest
+stock answer can land ~830 ms after the cards (measured 5 times; see AI-LOG). Row 6 waits 8 s.
+Row 8: `// @ts-check` as line 1 of one file at a time, scratch copy, `tsc --project jsconfig.json
+--noEmit` (TypeScript 5.6.3).
+
+FILES CHANGED SINCE THE STARTER COMMIT (git diff --stat 3676f2f HEAD, code only):
+  public/versions/a.js | 7 ++-----
+  public/versions/b.js | 2 +-
+
+=====================================================================================
+VERSION A (fixed)
+=====================================================================================
+row 1   PASS  8 cards, tshirt,hoodie,somi,cap,tote,socks,jacket,scarf, #status ""
+row 2   PASS  #stock-value "12.360.000 đ" at 1.5 s            (was "0 đ")
+row 3   PASS  "Scarf <i>limited</i>", 0 <i> elements
+row 4   PASS  "Loading products…" at 1 s; 8 cards at 3062 ms; #status ""; stock 12.360.000 đ
+row 5   PASS  error: "Could not load products.", Retry shown, 0 cards;
+              normal + Retry: 8 cards, #status "", Retry hidden, 12.360.000 đ
+row 6   PASS  "Could not load products." + Retry at 5092 ms
+row 7   PASS  no page error / unhandled rejection / console.error
+row 8   PASS  tsc exit 0
+empty   PASS  "No products yet.", 0 cards, "0 đ"
+parallel PASS 8 requests: tshirt@41 hoodie@41 somi@41 cap@41 tote@42 socks@42 jacket@42 scarf@42
+              → within 1 ms, no staircase
+
+=====================================================================================
+VERSION B (fixed)
+=====================================================================================
+row 1   PASS  8 cards in API order, #status ""
+row 2   PASS  "12.360.000 đ"
+row 3   PASS  "Scarf <i>limited</i>", 0 <i> elements
+row 4   PASS  "Loading products…" at 1 s; 8 cards at 3020 ms; #status ""; stock 12.360.000 đ
+row 5   PASS  error: message + Retry, 0 cards; normal + Retry: 8 cards, message and button gone
+row 6   PASS  "Could not load products." + Retry at 5042 ms     (was 30042 ms)
+row 7   PASS  no page error / unhandled rejection / console.error
+row 8   PASS  tsc exit 0                                        (was TS2353)
+empty   PASS  "No products yet.", 0 cards, "0 đ"
+parallel PASS 8 requests: tshirt@37 hoodie@37 somi@38 cap@38 tote@38 socks@38 jacket@38 scarf@39
+              → within 2 ms
+
+=====================================================================================
+VERSION C (kept, unchanged)
+=====================================================================================
+row 1   PASS  8 cards in API order, #status ""
+row 2   PASS  "12.360.000 đ"
+row 3   PASS  "Scarf <i>limited</i>", 0 <i> elements
+row 4   PASS  "Loading products…" at 1 s; 8 cards at 3088 ms; #status ""; stock 12.360.000 đ
+row 5   PASS  error: message + Retry, 0 cards; normal + Retry: 8 cards, message and button gone
+row 6   PASS  "Could not load products." + Retry at 5069 ms
+row 7   PASS  no page error / unhandled rejection / console.error
+row 8   PASS  tsc exit 0
+empty   PASS  "No products yet.", 0 cards, "0 đ"
+parallel PASS 8 requests: tshirt@35 hoodie@36 somi@36 cap@36 socks@36 tote@36 jacket@36 scarf@36
+              → within 1 ms
+
+Browser console over the whole session: only "Failed to load resource: … 500 (Internal Server
+Error)" lines from the error rows — the browser reporting the network. No "Uncaught".
+
+SUMMARY: all three versions pass rows 1–8, empty and the parallel check.
+
+EXTRA — the fault run from run-review-checks.txt repeated on FIXED A (/api/stock/cap forced to 404):
+A (fixed)  #status "Could not load products."  0 cards  #stock-value "—"  Retry shown  page errors: none
+(was: 8 cards, "0 đ", no message, "Uncaught (in promise) Error: GET /api/stock/cap failed: HTTP 404")
