@@ -35,19 +35,14 @@ Run on 2026-10-29, 22:26–22:28, against the untouched `server.mjs` on
 [`evidence/run-original.txt`](evidence/run-original.txt), which also says how
 the rows were run: a script drives the real page in Chromium and reads what it
 shows; row 8 is `tsc --project jsconfig.json` with `// @ts-check` added to one
-file at a time. Screenshots of the failing rows are real Chrome windows with
-DevTools on the Network panel, or a real PowerShell window (see `AI-LOG.md`
-for how they were taken).
+file at a time.
 
-Who ran what, plainly: I chose to let Claude Code run the rows and take the
-screenshots with scripts (they open a real Chrome with DevTools, or a real
-PowerShell window, and photograph it; nothing is drawn on top). I read every
-result and every image before it was committed. The prediction in section 1
-was also drafted by Claude, in a session that had just reviewed my discarded
-first attempt — which had already run this table — so it is a prediction from
-reading this code, but not one made without knowing the first attempt's
-results. Its wording "before the server was started" is true of this second
-pass only. Both are recorded in `AI-LOG.md`.
+The screenshots of the failing rows (`a-row2.png`, `b-row6.png`,
+`b-row6-at30s.png`, `b-row8.png`) I took myself on 2026-10-31, in my own Chrome
+with DevTools on the Network panel and in VS Code, against the original files
+(the server started from the untouched starter). Looking at each failing row
+by hand matched the scripted run. `b-row8-tsc.png` is the same row 8 from
+`tsc` in PowerShell, captured by `tools/row8-shot.ps1`.
 
 Note on row 7: in Chrome every page also shows a red
 `GET /favicon.ico 404 (Not Found)` line. That is the browser asking for a tab
@@ -80,7 +75,9 @@ like the `GET … 500` line the README mentions — not the version's code.
   ```
   `forEach` ignores the promises its async callback returns, so line 56 runs
   straight away with `total` still 0, and nothing writes the total again.
-- **Evidence:** [`evidence/a-row2.png`](evidence/a-row2.png).
+- **Evidence:** [`evidence/a-row2.png`](evidence/a-row2.png) — `normal`,
+  `Stock value: 0 đ`; Network: `products` and all 8 `/api/stock/…` requests
+  `200` (initiator `a.js:20`), their waterfall bars starting together.
 - **The one sentence for the assistant:** *"Row 2 fails: in mode normal the page shows Stock value: 0 đ instead of 12.360.000 đ because products.forEach(async …) on a.js lines 52–55 is not awaited, so line 56 writes the total while it is still 0 — wait for every stock response before writing the total, keep the eight /api/stock/… requests going out in parallel (no await inside a loop), and change nothing else."*
 
 ### Version B — verdict: **fix** (decided by row 6, also row 8)
@@ -105,18 +102,19 @@ like the `GET … 500` line the README mentions — not the version's code.
   `fetch` has no `timeout` option; the browser ignores the unknown key, so
   nothing ever aborts the request, and TypeScript rejects the key against
   `RequestInit`.
-- **Evidence:** [`evidence/b-row6.png`](evidence/b-row6.png) (at 8 s:
-  `Loading products…`, `products` pending). Supporting, from a second run:
-  [`evidence/b-row6-at32s.png`](evidence/b-row6-at32s.png) (at 32 s:
-  `products` `504` after `30.01 s`, only then the message and Retry).
-  `b-row6.png` alone shows no clock: the 8 s is the capture script's wait
-  after loading the page. The second picture is what proves the row: the
-  request's own Time column reads `30.01 s` and the message appears only with
-  the `504`, so nothing gave up at 5 s.
-  [`evidence/b-row8.png`](evidence/b-row8.png) (PowerShell: the first 17
-  lines of `b.js` with `// @ts-check`, then `tsc` with TS2353, exit code 2).
-  A VS Code screenshot was tried as well; a fresh VS Code instance opened on
-  its sign-in screen, so the terminal picture is the evidence.
+- **Evidence:** [`evidence/b-row6.png`](evidence/b-row6.png) — `hang`,
+  page `Loading products…` and `Stock value: —`, no Retry; Network:
+  `products` **(pending)**, initiator `b.js:16`.
+  [`evidence/b-row6-at30s.png`](evidence/b-row6-at30s.png) — the same page
+  load later (the other rows' times are identical: `?v=b` 15 ms, `b.js`
+  12 ms): `products` **504** after **30.01 s**, `Finish: 30.07 s`, and only
+  then `Could not load products.` + Retry — so nothing gave up at 5 s.
+  [`evidence/b-row8.png`](evidence/b-row8.png) — VS Code with the folder
+  open, `// @ts-check` on line 1 of `b.js`: `timeout` underlined, hover and
+  Problems panel `Object literal may only specify known properties, and
+  'timeout' does not exist in type 'RequestInit'. ts(2353) [Ln 17, Col 51]`.
+  Same result from `tsc` in PowerShell:
+  [`evidence/b-row8-tsc.png`](evidence/b-row8-tsc.png).
 - **The one sentence for the assistant:** *"Rows 6 and 8 fail: in mode hang the page still says Loading products… after 7 s, Network shows /api/products pending until the 504 at 30 s, and // @ts-check underlines timeout with TS2353, because fetch has no timeout option (b.js line 16) — make the products request give up after 5 seconds so the catch shows Could not load products. and Retry, keep the stock requests parallel, and change nothing else."*
 
 ### Version C — verdict: **keep** (every row passes)
@@ -155,7 +153,7 @@ like the `GET … 500` line the README mentions — not the version's code.
 | Version | Predicted | Failing rows | Verdict | Evidence |
 |---|---|---|---|---|
 | A | fix | 2 | **fix** | `evidence/a-row2.png` |
-| B | fix | 6, 8 | **fix** | `evidence/b-row6.png` (+ `b-row6-at32s.png`), `evidence/b-row8.png` |
+| B | fix | 6, 8 | **fix** | `evidence/b-row6.png` (+ `b-row6-at30s.png`), `evidence/b-row8.png` (+ `b-row8-tsc.png`) |
 | C | keep | — | **keep** | — |
 
 ## 4. After the fixes — the whole table again

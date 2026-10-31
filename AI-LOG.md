@@ -5,12 +5,38 @@
 One entry per stage where an assistant did part of the work. Times are local
 (UTC+7) and match the commit each entry ends with.
 
-**Second pass.** A first attempt on 2026-10-29 (20:47–20:58) was discarded:
-its evidence screenshots had a DevTools-style panel injected into the page
-instead of real DevTools, and its log claimed a prediction change that the
-prediction commit does not contain. That folder is kept outside the
-submission. Everything below is the second pass, started from the untouched
-starter.
+The first entry is a first attempt I rejected; everything after it is the
+second pass, started again from the untouched starter.
+
+---
+
+## 2026-10-29 20:47–20:58 — First attempt with Antigravity (rejected)
+- **Tool:** Antigravity, with Claude Opus 4.6 (and Gemini 3.8 Flash for the
+  test runner), in a separate repository that is not this submission.
+- **Asked for:** the whole assignment — predictions, the table, screenshots,
+  review, fixes and docs.
+- **Kept:** nothing. Its two fixes happened to be the same as the ones in this
+  repository, but they were redone here from my own sentences and rerun.
+- **Changed:** —
+- **Rejected:** all of it, after I had it checked against the rubric with
+  Claude Code (next entry):
+  - `evidence/*.png` were not DevTools screenshots: the script injected a dark
+    "DevTools-style inspector" panel into the page with the verdict already
+    written in it, and `b-row8.png` was a terminal drawn as HTML. The rubric
+    asks for the page and the real DevTools panel or terminal.
+  - Its prediction section was edited after the results were in (Row 8 added
+    to B), and its log said "we updated the prediction", which the prediction
+    commit does not contain — a log contradicted by `git log`.
+  - Six commits in eleven minutes (20:47–20:58), the predictions 20 s after
+    the starter: the log's "by hand" steps could not have happened in that
+    time.
+  - Smaller: "13 requests" with 14 listed in CSR-SSR, a self-assessment
+    citing an amended commit and a "task-224 log" that did not exist, no
+    rerun of the table after the fixes.
+- **By hand:** decided to throw the attempt away and start again from the
+  starter rather than patch it; moved it to a backup folder outside the zip.
+- **Commit:** none in this repository (that attempt had its own repository,
+  last commit at 20:58).
 
 ---
 
@@ -21,8 +47,8 @@ starter.
 - **Kept:** the plan (one commit per stage, fixes touching only their version
   file), the prompts, and the predictions it drafted from reading the code.
 - **Changed:** —
-- **Rejected:** the first attempt as a whole (fake DevTools panels in
-  `evidence/`, a log contradicted by `git log`).
+- **Rejected:** the first attempt — its problems are listed in the entry
+  above; this review is where they were found.
 - **By hand:** chose to redo rather than patch; agreed to the four setup
   decisions (back up the first attempt, disclose it here, take the review
   from a fresh assistant, keep my git identity).
@@ -67,7 +93,8 @@ starter.
   captures were cut off (125 % display scaling) and showed `đ` garbled; both
   fixed and retaken. When I asked whether the screenshots would pass a strict
   grader, it judged `b-row6.png` alone shows no elapsed time and added
-  `b-row6-at32s.png` (`products` 504 after 30.01 s).
+  `b-row6-at32s.png` (`products` 504 after 30.01 s). These scripted
+  pictures were replaced on 2026-10-31 by ones I took myself (last entry).
 - **Rejected:** —
 - **By hand:** decided to let the assistant take the screenshots, asked for
   each image to be checked against the rubric, chose to keep the extra 32 s
@@ -86,7 +113,7 @@ starter.
 - **Kept:** its findings that match rows: A row 2 (`forEach(async …)`),
   B row 6 (`{ timeout: 5000 }`), C keep.
 - **Changed:** its claim that B hangs "forever" — row 6's run shows the
-  server's `504` at 30.01 s ends the wait (`b-row6-at32s.png`); the row
+  server's `504` at 30.01 s ends the wait (now `b-row6-at30s.png`); the row
   fails anyway.
 - **Rejected:** — no invented bug. Three claims about a failing stock
   request (A unhandled rejection, B cards + error message, C cards removed)
@@ -116,8 +143,7 @@ starter.
 - **Rejected:** —
 - **By hand:** read the diff (only `a.js`, 2 + / 5 −) and approved the commit.
 - **Commit:** `3385d84` fix A (the commit holds only `a.js`; this entry
-  rides with the rerun commit below). Written at 22:27, six minutes after
-  the fix, because a fix commit may touch nothing but its version file.
+  rides with the rerun commit below).
 
 ---
 
@@ -187,10 +213,9 @@ starter.
 - **Asked for:** a mark per rubric criterion with evidence, and every risk an
   AI grader could see, before writing `SELF_ASSESSMENT_REPORT.md`.
 - **Kept:** its mark of 90/100 and its list of risks. Acted on:
-  - VERDICTS: said plainly that Claude ran the rows and took the
-    screenshots, and that the prediction was drafted after the first
-    attempt had been reviewed (section 1 itself is unchanged since
-    `63951a7`); explained why `b-row6-at32s.png` is what proves row 6.
+  - VERDICTS: a note on who ran the rows and took the screenshots, and why
+    `b-row6-at32s.png` is what proves row 6 (section 1 itself unchanged
+    since `63951a7`). Both superseded on 2026-10-31 (last entry).
   - ASSISTANT-REVIEW: claims 3, 10 and 14 and two parts of claim 8 had been
     judged by reading. They now have runs (second set in
     `evidence/run-review-checks.txt`, the ORIGINAL source loaded from
@@ -209,8 +234,35 @@ starter.
   must be shown on the original) — both discarded, `b.js` restored byte for
   byte; view-source pages came out blank in several captures until the page
   was given longer and scrolled.
-- **Rejected:** retaking `b-row6.png` — it would mean putting the original
-  `b.js` back into the working tree after the fix; explained instead.
+- **Rejected:** retaking `b-row6.png` from the repo — it would mean putting
+  the original `b.js` back into the working tree after the fix. (Solved the
+  next day by serving the untouched starter copy instead — last entry.)
 - **By hand:** asked for the independent grading and for every reference to
   be checked; decided which risks to fix.
-- **Commit:** fixes after the grading (this entry).
+- **Commit:** `8abad8a` fixes after the grading.
+
+---
+
+## 2026-10-31 23:40–23:54 — My own screenshots of the failing rows
+- **Tool:** Claude Code, Claude Opus 5.5 — only to set things up and to check
+  the pictures; the screenshots are mine.
+- **Asked for:** serve the ORIGINAL files on :5050 (it started `server.mjs`
+  from the untouched starter copy, identical to `3676f2f`), open Chrome with
+  DevTools on Network for A and B, open VS Code on that copy, and tell me
+  exactly what each picture must show.
+- **Kept:** `a-row2.png`, `b-row6.png`, `b-row6-at30s.png` (the same page
+  load as `b-row6.png`, 30.01 s later) and `b-row8.png` (VS Code, Problems
+  panel and hover with TS2353 at Ln 17, Col 51) — all taken by me.
+- **Changed:** my first `a-row2` had an empty Network panel (DevTools opened
+  after the load) — reloaded in mode `normal`; the second hid
+  `Stock value: 0 đ` behind DevTools — scrolled the page. My first `b-row6`
+  was taken before reloading in `hang` (it showed `12.360.000 đ`) — retaken.
+  The assistant had added `// @ts-check` to the starter copy's `b.js` for the
+  VS Code picture, which also shifted the initiator to `b.js:17` in Chrome; it
+  removed the line and I typed it myself in VS Code, as the README says.
+- **Rejected:** a picture with `performance.now()` in the Console: it was
+  typed after the 30 s and showed a typo's `ReferenceError` — the 30.01 s in
+  `b-row6-at30s.png` shows the wait better.
+- **By hand:** all four screenshots, the reloads and mode switches, typing
+  `// @ts-check` in VS Code.
+- **Commit:** my screenshots and the self-assessment (this entry).
