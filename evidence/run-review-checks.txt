@@ -10,8 +10,8 @@ fail — server.mjs only answers 404 for an unknown id, and every id in its cata
 HOW: same iframe harness as run-original.txt. Before the version runs, the page's own
 window.fetch is wrapped so that GET /api/stock/cap answers 404 {"error":"Unknown product id: cap"}
 (what server.mjs sends for an unknown id); every other request goes to the real server.
-Nothing in the repository is changed. State read 1.5 s after load. The script is kept
-outside the submission (tools/).
+Nothing in the repository is changed. State read 1.5 s after load. The script was kept
+outside the repo at the time; copied into tools/ on 2026-10-30.
 
 version  #status                     cards  #stock-value  Retry    page errors
 -------  --------------------------  -----  ------------  -------  -----------------------------------------------
@@ -60,3 +60,13 @@ Reading:
   and shows the cards at 8.5 s — the brief wants the error and Retry after 5 s.
 - Claim 8, "`loading` stays true": an internal variable with nothing on screen to observe while
   the request is pending (Retry is hidden anyway) — not checked by a run.
+
+-------------------------------------------------------------------------------------------
+THIRD CHECK — 2026-11-01, claim 8 "`loading` stays true" (left unchecked above).
+Original B (git show 3676f2f, blob module as in the second set), /api/products never answers.
+At 2 s the hidden #retry button was clicked twice from script (its click listener runs even
+while it is hidden):
+  /api/products requests before the clicks: 1     after the two clicks: 1
+  #status "Loading products…", Retry hidden.
+Reading: showCatalogue() returns at `if (loading) return;` — `loading` is still true while the
+first request hangs, so a Retry press would do nothing. Claim confirmed.

@@ -1,7 +1,7 @@
 IA#3 — Done means on the FINAL versions (after fix A 3385d84 and fix B 274e790; C unchanged)
 Run: 2026-10-30 ~22:25 (UTC+7). Server: `node server.mjs` on http://localhost:5050, untouched starter,
 Node v24.16.0. Browser: Chromium (Claude desktop app's built-in browser).
-Method: same harness as run-original.txt (tools/harness.js, outside the submission), with one
+Method: same harness as run-original.txt (tools/harness.js — run from outside the repo, copied into tools/ on 2026-10-30), with one
 change: row 4 now reads the page 1.5 s after the cards appear instead of 0.8 s, because the slowest
 stock answer can land ~830 ms after the cards (measured 5 times; see AI-LOG). Row 6 waits 8 s.
 Row 8: `// @ts-check` as line 1 of one file at a time, scratch copy, `tsc --project jsconfig.json

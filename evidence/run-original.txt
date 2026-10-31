@@ -2,8 +2,8 @@ IA#3 — Done means on the ORIGINAL versions (starter commit 3676f2f)
 Run: 2026-10-29 22:26–22:28 (UTC+7). Server: `node server.mjs` on http://localhost:5050,
 Node v24.16.0, untouched starter. Browser: Chromium (Claude desktop app's built-in browser).
 
-HOW THIS WAS RUN (automated; the screenshots in evidence/*.png are the manual check)
-- Rows 1–7 + empty + parallel: a script (tools/harness.js, kept outside the submission)
+HOW THIS WAS RUN (automated; the screenshots of the failing rows were taken by hand later, on 2026-10-31)
+- Rows 1–7 + empty + parallel: a script (tools/harness.js, run from outside the repo, copied into tools/ on 2026-10-30)
   loads /?v=<letter> in an iframe on the real page, switches the mode through POST /__mode
   exactly as the Test conditions buttons do, and reads #status, #catalogue, #stock-value
   and #retry. Stock request start times come from the page's Performance API

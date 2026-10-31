@@ -65,6 +65,9 @@ There is no `<script>` at all in `/ssr`'s source.
 
 ## 2. Why does the scarf read `&lt;i&gt;` in `/ssr`'s source, and what does that share with `textContent`?
 
+In `/ssr`'s View source the scarf is line 48:
+`<h2 class="name">Scarf &lt;i&gt;limited&lt;/i&gt;</h2>`
+([`csr-source-ssr-scarf.png`](evidence/csr-source-ssr-scarf.png)).
 The name in `server.mjs` is the string `Scarf <i>limited</i>`. `renderSsrPage`
 builds HTML by putting strings next to each other, so it passes the name
 through `escapeHtml` first (line 81, `${escapeHtml(p.name)}`), which turns

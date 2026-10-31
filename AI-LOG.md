@@ -2,8 +2,8 @@
 
 **Student:** 23120193 — Trần Kim Yến
 
-One entry per stage where an assistant did part of the work. Times are local
-(UTC+7) and match the commit each entry ends with.
+One entry per stage where an assistant did part of the work. Each entry ends
+with the commit it went into; times are local (UTC+7).
 
 The first entry is a first attempt I rejected; everything after it is the
 second pass, started again from the untouched starter.
@@ -79,8 +79,8 @@ second pass, started again from the untouched starter.
   files, log the numbers, then take the screenshots of the failing rows.
 - **Kept:** the run (`evidence/run-original.txt`): A fails row 2, B fails
   rows 6 and 8, C passes everything — as predicted. Its harness drives the
-  real page in an iframe and switches modes through `POST /__mode`; it lives
-  in `tools/` outside the repo so nothing but `public/versions/*.js` is ever
+  real page in an iframe and switches modes through `POST /__mode`; it ran
+  outside the repo at the time (copied into `tools/` on 2026-10-30) so nothing but `public/versions/*.js` is ever
   touched.
 - **Changed:** I first opened Chrome to take the screenshots myself and got a
   red `favicon.ico 404` in the Console; Claude explained it is the browser's
@@ -220,7 +220,7 @@ second pass, started again from the untouched starter.
     judged by reading. They now have runs (second set in
     `evidence/run-review-checks.txt`, the ORIGINAL source loaded from
     `git show 3676f2f` so the fixed files were not touched); "`loading`
-    stays true" is marked as not checked by a run.
+    stays true" was marked as not checked by a run (checked on 2026-11-01, last entry).
   - `run-review-checks.txt` said "~23:10" for a run committed at 23:07 —
     a guessed time, corrected with a note. `run-original.txt` said the real
     files were never edited; added that the row 8 screenshot did edit
@@ -263,6 +263,29 @@ second pass, started again from the untouched starter.
 - **Rejected:** a picture with `performance.now()` in the Console: it was
   typed after the 30 s and showed a typo's `ReferenceError` — the 30.01 s in
   `b-row6-at30s.png` shows the wait better.
-- **By hand:** all four screenshots, the reloads and mode switches, typing
-  `// @ts-check` in VS Code.
-- **Commit:** my screenshots and the self-assessment (this entry).
+- **By hand:** all four screenshots (`Win+Shift+S`, pasted into the chat;
+  Claude saved each one into `evidence/` under the rubric's name, which is
+  why their file times are seconds apart), the reloads and mode switches,
+  typing `// @ts-check` in VS Code.
+- **Commit:** `05990ca` my screenshots and the self-assessment.
+
+---
+
+## 2026-11-01 00:04 — Second independent grading
+- **Tool:** Claude Code; the grading by another fresh `general-purpose`
+  subagent (Claude Opus 5.5), told to be strict and to change nothing.
+- **Asked for:** a mark per criterion against the rubric and every risk a
+  grader could see.
+- **Kept:** its mark of 92/100. Acted on:
+  - the last open review claim ("`loading` stays true") now has a run —
+    third check in `evidence/run-review-checks.txt`;
+  - a View source picture of `/ssr` at the scarf line,
+    `evidence/csr-source-ssr-scarf.png`, cited in CSR-SSR question 2;
+  - phrases written before `tools/` was committed ("kept outside the
+    submission") now say the scripts were copied into `tools/`;
+  - the header of this log now says each entry ends with its commit.
+- **Changed:** —
+- **Rejected:** —
+- **By hand:** asked for the second grading; chose to keep the
+  self-assessment at 100.
+- **Commit:** second grading fixes (this entry).
