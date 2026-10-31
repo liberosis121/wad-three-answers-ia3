@@ -44,6 +44,12 @@ with DevTools on the Network panel and in VS Code, against the original files
 by hand matched the scripted run. `b-row8-tsc.png` is the same row 8 from
 `tsc` in PowerShell, captured by `tools/row8-shot.ps1`.
 
+About section 1: the prediction was drafted by Claude from reading these
+three files, in the session that had just reviewed my discarded first attempt
+— which had already run this table. So it was written before any run of this
+second pass, but not without knowing the first attempt's results; its words
+"before the server was started" are true of this pass only (see `AI-LOG.md`).
+
 Note on row 7: in Chrome every page also shows a red
 `GET /favicon.ico 404 (Not Found)` line. That is the browser asking for a tab
 icon the starter server does not have — the browser reporting the network,

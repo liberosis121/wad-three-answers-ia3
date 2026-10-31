@@ -143,7 +143,9 @@ second pass, started again from the untouched starter.
 - **Rejected:** —
 - **By hand:** read the diff (only `a.js`, 2 + / 5 −) and approved the commit.
 - **Commit:** `3385d84` fix A (the commit holds only `a.js`; this entry
-  rides with the rerun commit below).
+  rides with the rerun commit below). Written at 22:27, six minutes after
+  the fix, because a fix commit may touch nothing but its version file; the
+  fix B entry likewise, four minutes after its commit.
 
 ---
 
@@ -213,9 +215,10 @@ second pass, started again from the untouched starter.
 - **Asked for:** a mark per rubric criterion with evidence, and every risk an
   AI grader could see, before writing `SELF_ASSESSMENT_REPORT.md`.
 - **Kept:** its mark of 90/100 and its list of risks. Acted on:
-  - VERDICTS: a note on who ran the rows and took the screenshots, and why
-    `b-row6-at32s.png` is what proves row 6 (section 1 itself unchanged
-    since `63951a7`). Both superseded on 2026-10-31 (last entry).
+  - VERDICTS: a note on who ran the rows and took the screenshots, that the
+    prediction was drafted after the first attempt had been reviewed, and
+    why `b-row6-at32s.png` is what proves row 6 (section 1 itself unchanged
+    since `63951a7`). The screenshot parts were superseded on 2026-10-31.
   - ASSISTANT-REVIEW: claims 3, 10 and 14 and two parts of claim 8 had been
     judged by reading. They now have runs (second set in
     `evidence/run-review-checks.txt`, the ORIGINAL source loaded from
@@ -271,7 +274,7 @@ second pass, started again from the untouched starter.
 
 ---
 
-## 2026-11-01 00:04 — Second independent grading
+## 2026-11-01 00:03 — Second independent grading
 - **Tool:** Claude Code; the grading by another fresh `general-purpose`
   subagent (Claude Opus 5.5), told to be strict and to change nothing.
 - **Asked for:** a mark per criterion against the rubric and every risk a
@@ -288,4 +291,18 @@ second pass, started again from the untouched starter.
 - **Rejected:** —
 - **By hand:** asked for the second grading; chose to keep the
   self-assessment at 100.
-- **Commit:** second grading fixes (this entry).
+- **Commit:** `9ca45fa` second grading fixes.
+
+---
+
+## 2026-11-01 — Two notes restored
+- **Tool:** Claude Code, Claude Opus 5.5.
+- **Asked for:** put back two notes I had asked to remove in `05990ca`, after
+  the second grading pointed out that deleting true statements reads worse
+  than keeping them.
+- **Kept:** VERDICTS §2 again says the prediction was drafted after the first
+  attempt had been reviewed; the fix A entry again says when it was written.
+- **Changed:** —
+- **Rejected:** my own earlier decision to drop them.
+- **By hand:** the decision to restore them.
+- **Commit:** notes restored (this entry).
