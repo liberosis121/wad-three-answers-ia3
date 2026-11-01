@@ -306,3 +306,19 @@ second pass, started again from the untouched starter.
 - **Rejected:** my own earlier decision to drop them.
 - **By hand:** the decision to restore them.
 - **Commit:** `7a41c7f` notes restored; `7e05ea0` then dropped an outdated sentence from `tools/README.md`.
+
+---
+
+## 2026-11-01 — b-row6.png retaken with a clock
+- **Tool:** Claude Code, Claude Opus 5.5 — set-up only (served the original
+  starter copy on :5050, opened Chrome "version B" in `hang`).
+- **Asked for:** a way to make `b-row6.png` show on its own that more than
+  5 s had passed, since the third grading noted its Network footer
+  ("Finish: 49 ms") shows no time.
+- **Kept:** my new `b-row6.png`: `Loading products…`, `products (pending)`
+  from `b.js:16`, and `performance.now()` = 7948 ms in the Console drawer.
+- **Changed:** my first try showed the Console as a full tab, hiding the
+  Network panel — retaken with Network on top and the Console drawer below.
+- **Rejected:** —
+- **By hand:** the screenshot and the `performance.now()` call.
+- **Commit:** b-row6 with a clock (this entry).

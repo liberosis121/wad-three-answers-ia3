@@ -110,11 +110,11 @@ like the `GET … 500` line the README mentions — not the version's code.
   `RequestInit`.
 - **Evidence:** [`evidence/b-row6.png`](evidence/b-row6.png) — `hang`,
   page `Loading products…` and `Stock value: —`, no Retry; Network:
-  `products` **(pending)**, initiator `b.js:16`.
-  [`evidence/b-row6-at30s.png`](evidence/b-row6-at30s.png) — the same page
-  load later (the other rows' times are identical: `?v=b` 15 ms, `b.js`
-  12 ms): `products` **504** after **30.01 s**, `Finish: 30.07 s`, and only
-  then `Could not load products.` + Retry — so nothing gave up at 5 s.
+  `products` **(pending)**, initiator `b.js:16`; Console `performance.now()`
+  = **7948** ms since the page load — past the 5 s, still loading.
+  [`evidence/b-row6-at30s.png`](evidence/b-row6-at30s.png) — another load,
+  left to the end: `products` **504** after **30.01 s**, `Finish: 30.07 s`,
+  and only then `Could not load products.` + Retry — nothing gave up at 5 s.
   [`evidence/b-row8.png`](evidence/b-row8.png) — VS Code with the folder
   open, `// @ts-check` on line 1 of `b.js`: `timeout` underlined, hover and
   Problems panel `Object literal may only specify known properties, and
