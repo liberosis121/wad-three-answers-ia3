@@ -22,5 +22,5 @@ screenshots, and they matched. A VS Code picture taken by a script did not work
 
 ## What I would do differently
 
-Take the screenshots by hand from the start, with DevTools open before the
-page loads, instead of first trying to have them captured by a script.
+Write each AI-LOG entry in the same commit as the work it describes, so no
+entry has to ride with a later commit.
