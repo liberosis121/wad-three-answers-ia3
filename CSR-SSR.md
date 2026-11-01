@@ -2,7 +2,7 @@
 
 **Student:** 23120193 — Trần Kim Yến
 
-Observed on 2026-10-30 with the starter's `server.mjs` on
+Observed on 2026-10-30 (the scarf View source picture on 2026-11-01) with the starter's `server.mjs` on
 `http://localhost:5050`, comparing `/?v=c` (built in the browser) with `/ssr`
 (built by `renderSsrPage` in `server.mjs`). Screenshots are real Chrome
 windows with DevTools on the Network panel, *Disable cache* ticked:
@@ -124,7 +124,7 @@ each screenshot):
 | `/?v=c` | **15** (`csr-requests-c.png`) | `?v=c`, `style.css`, `panel.js`, `__mode`, `c.js`, `products`, `favicon.ico`, then 8 × `/api/stock/:id` | the last stock answer — finish 627 ms |
 
 Without the browser's own `favicon.ico` the counts are 2 and 14. In `/?v=c`
-they come in four waves, each waiting for the one before: the HTML →
+they come in five waves, each waiting for the one before: the HTML →
 `panel.js` → `c.js` → `/api/products` → the 8 stock requests (in parallel, the
 long green bars in the waterfall, 137–521 ms each).
 

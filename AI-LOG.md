@@ -305,4 +305,4 @@ second pass, started again from the untouched starter.
 - **Changed:** —
 - **Rejected:** my own earlier decision to drop them.
 - **By hand:** the decision to restore them.
-- **Commit:** notes restored (this entry).
+- **Commit:** `7a41c7f` notes restored; `7e05ea0` then dropped an outdated sentence from `tools/README.md`.
