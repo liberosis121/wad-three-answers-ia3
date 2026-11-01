@@ -4,7 +4,7 @@ Copies of the scripts Claude Code wrote and ran for this assignment, so every
 number and screenshot in `evidence/` can be traced to the code that produced
 it. They ran from `D:\HK7\WAD\IA\IA#3\tools\` — one level above this repo — and
 were copied here unchanged on 2026-10-30, so paths inside them assume that
-location (and `run-original.txt` says "kept outside the submission"). None of
+location. None of
 them is loaded by the page; nothing in `public/` uses them.
 
 | Script | Used for | Output |
